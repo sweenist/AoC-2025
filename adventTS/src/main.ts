@@ -1,4 +1,4 @@
-import { result } from './days/day4'
+import { result } from './days/days14'
 import './style.css'
 
 console.info(result)
