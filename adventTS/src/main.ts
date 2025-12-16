@@ -1,4 +1,4 @@
-import { drawTable, result } from './days/day15'
+import { result } from './days/day4'
 import './style.css'
 
 console.info(result)

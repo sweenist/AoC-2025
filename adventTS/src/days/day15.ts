@@ -1,44 +1,76 @@
 type Data = Array<Record<string, string | number>>;
 type SortBy = string;
-type ColumnConfig = {
-  header: string;
-  columnWidth: number;
-  fieldName: string;
-};
 
 export function drawTable(data: Data, sortBy: SortBy): string {
+  type ColumnConfig = {
+    header: string;
+    columnWidth: number;
+    fieldName: string;
+  };
+  function getColumnConfiguration(data: Data): ColumnConfig[] {
+    const headers = Array.from({ length: 26 }, (_, i) =>
+      String.fromCharCode(65 + i)
+    );
+
+    const columnConfig: ColumnConfig[] = [];
+    Object.keys(data[0]).forEach((key, i) => {
+      const maxWidth = data.reduce((max, current) => {
+        if (typeof current[key] === "string") {
+          const str = current[key].toString();
+          return str.length > max ? str.length : max;
+        } else {
+          const numberString = current[key].toString();
+          return numberString.length > max ? current[key] : max;
+        }
+      }, 0);
+      columnConfig.push({
+        header: headers[i],
+        fieldName: key,
+        columnWidth: maxWidth,
+      });
+    });
+
+    return columnConfig;
+  }
+
+  function composeTable(data: Data, columnConfigs: ColumnConfig[]): string {
+    const node = '+';
+    const hSep = '-';
+    const vSep = '|';
+    const nl = '\n';
+
+    let sb: string = node;
+
+    const headerSeparator = () => {
+      const divs = columnConfigs.map((c) => hSep.repeat(c.columnWidth + 2));
+      return divs.join(node) + node + nl;
+    }
+
+    sb += headerSeparator();
+    sb += vSep + columnConfigs.map((c) => ' ' + c.header.padEnd(c.columnWidth, ' ') + ' ').join(vSep) + vSep + nl;
+    sb += node + headerSeparator();
+
+    data.map((d) => {
+      sb += vSep;
+      Object.keys(d).forEach((_, i) => {
+        const { fieldName: key, columnWidth } = columnConfigs[i]
+        sb += ' ' + d[key].toString().padEnd(columnWidth) + ' ' + vSep;
+      });
+      sb += nl
+    });
+
+    sb += node + headerSeparator();
+    return sb;
+  }
+
   const sorted = data.sort((a, b) => {
     return a[sortBy] > b[sortBy] ? 1 : a[sortBy] < b[sortBy] ? -1 : 0;
   });
-  const columnCOnfig = getColumnConfiguration(sorted);
-  console.info(columnCOnfig)
-  return "";
+  const columnConfig = getColumnConfiguration(sorted);
+
+  return composeTable(sorted, columnConfig);
 }
 
-function getColumnConfiguration(data: Data): ColumnConfig[] {
-  const headers = Array.from({ length: 26 }, (_, i) =>
-    String.fromCharCode(65 + i)
-  );
-
-  const columnConfig: ColumnConfig[] = [];
-  Object.keys(data[0]).forEach((key, i) => {
-    const maxWidth = data.reduce((max, current) => {
-      if (typeof current[key] === "string") {
-        return current[key].length > max ? current[key].length : max;
-      } else {
-        const numberString = current[key].toString();
-        return numberString.length > max ? current[key] : max;
-      }
-    }, 0);
-    columnConfig.push({
-      header: headers[i],
-      fieldName: key,
-      columnWidth: maxWidth,
-    });
-  });
-
-  return columnConfig;
-}
 
 const exampleA = [
   { gift: "Book", quantity: 5 },
@@ -52,4 +84,5 @@ const exampleB = [
   { name: "Bob", city: "Paris" },
 ];
 
-export const result = drawTable(exampleB, "name");
+export const result = drawTable(exampleA, "quantity");
+export const res2 = drawTable(exampleB, 'name');
