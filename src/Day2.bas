@@ -1,41 +1,57 @@
 DefInt A-Z
-'$Console
+$Console
 
-'_Dest _Console
+_Dest _Console
 startTime# = Timer
 
-LockPos% = 50
-countZero% = 0
+declare function findRepeats&(low$, high$)
+Dim runningTotal As Long
 
 
-'Open "../AoC-2025/inputs/day1-ex.txt" For Input As #1
-Open "../AoC-2025/inputs/day1.txt" For Input As #1
-count% = 0
-Do While Not EOF(1)
-    Line Input #1, line$
-    line$ = LTrim$(line$)
-    direction$ = Left$(line$, 1)
-    qty% = Val(Mid$(line$, 2, (Len(line$) - 1)))
+Open "../AoC-2025/inputs/day2-ex.txt" For Input As #1
+'Open "../AoC-2025/inputs/day2.txt" For Input As #1
+Line Input #1, line$
+line$ = RTrim$(line$)
+Close #1
 
-    If direction$ = "L" Then
-        LockPos% = LockPos% - qty%
+Do
+    comma% = InStr(line$, ",")
+    If comma% = 0 Then
+        ' No more values, exit
+        Exit Do
     Else
-        LockPos% = LockPos% + qty%
+        token$ = Left$(line$, comma% - 1)
+        line$ = Mid$(line$, comma% + 1)
     End If
 
-    LockPos% = LockPos% Mod 100
-    If LockPos% = 0 Then
-        countZero% = countZero + 1
-    ElseIf LockPos% < 0 Then
-        LockPos% = 100 + LockPos%
-    End If
+    dash% = InStr(token$, "-")
+    lowerVal$ = Left$(token$, dash% - 1)
+    upperVal$ = Mid$(token$, dash% + 1)
 
-    'Print line$, direction$, LockPos%, countZero%
-
+    a& = findRepeats&(lowerVal$, upperVal$)
+    Print lowerVal$, upperVal$
 Loop
 
-Close #1
+
 endTime# = Timer
-Print "The answer is:"; countZero%
+Print "The answer is:"; runningTotal&
 Print "took"; (endTime# - startTime#); "seconds"
+
+End
+
+Function findRepeats& (low$, high$)
+    ' do some splitting and length validation
+    If (Len(low$) = Len(high$) And Len(low$) Mod 2 = 1) Then
+        Exit Function
+    End If
+
+    accum& = 0
+    currentStep& = 0
+
+    lowVal& = Val(Mid$(low$, 1, Len(low$) / 2))
+    highVal& = Val(Mid$(high$, 1, Len(high$) / 2))
+
+    Print lowVal&, highVal&
+    findRepeats& = 0
+End Function
 
