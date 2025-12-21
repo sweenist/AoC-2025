@@ -1,7 +1,7 @@
 DefInt A-Z
-'$Console
+$Console
 
-'_Dest _Console
+_Dest _Console
 startTime# = Timer
 
 LockPos% = 50
@@ -16,25 +16,36 @@ Do While Not EOF(1)
     line$ = LTrim$(line$)
     direction$ = Left$(line$, 1)
     qty% = Val(Mid$(line$, 2, (Len(line$) - 1)))
+    previousPos% = LockPos%
 
     If direction$ = "L" Then
+        If qty% >= previousPos% And previousPos% > 0 Then
+            countZero% = countZero% + 1
+        End If
         LockPos% = LockPos% - qty%
+
     Else
+
         LockPos% = LockPos% + qty%
     End If
 
+
+    completions% = Abs(Fix(LockPos% / 100))
+
+    countZero% = countZero% + completions%
+
     LockPos% = LockPos% Mod 100
-    If LockPos% = 0 Then
-        countZero% = countZero + 1
-    ElseIf LockPos% < 0 Then
+
+    If LockPos% < 0 Then
         LockPos% = 100 + LockPos%
     End If
 
     'Print line$, direction$, LockPos%, countZero%
 
 Loop
-                
+
 Close #1
 endTime# = Timer
 Print "The answer is:"; countZero%
-print "took"; (endTime# - startTime#); "seconds"
+Print "took"; (endTime# - startTime#); "seconds"
+

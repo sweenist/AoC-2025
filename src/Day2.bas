@@ -33,8 +33,9 @@ Do While Not EOF(1)
     'Print line$, direction$, LockPos%, countZero%
 
 Loop
-                
+
 Close #1
 endTime# = Timer
 Print "The answer is:"; countZero%
-print "took"; (endTime# - startTime#); "seconds"
+Print "took"; (endTime# - startTime#); "seconds"
+
